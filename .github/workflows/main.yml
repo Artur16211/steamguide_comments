@@ -34,3 +34,15 @@ jobs:
         with:
           name: comments
           path: comments.json
+
+      - name: Crear archivo HTML con enlace al último artifact
+        run: |
+          LATEST_ARTIFACT=$(ls -t $GITHUB_WORKSPACE/comments*.json | head -1)
+          echo "<html><body><a href=\"$LATEST_ARTIFACT\">Descargar último artifact</a></body></html>" > $GITHUB_WORKSPACE/index.html
+
+      - name: Subir archivo HTML como artefacto
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact_index
+          path: $GITHUB_WORKSPACE/index.html
