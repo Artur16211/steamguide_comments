@@ -28,7 +28,7 @@ jobs:
       - name: Ejecutar script para obtener comentarios
         run: python extract_comments.py ${{ github.event.inputs.url }}
 
-      - name: Guardar directorio como artefacto
+      - name: Guardar comments.json como artefacto
         if: always()  # This ensures that the step runs even if the previous step fails
         uses: actions/upload-artifact@v2
         with:
