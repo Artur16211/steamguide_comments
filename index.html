@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Descargar y mostrar comments.json</title>
+</head>
+
+<body>
+    <h1>Comments JSON</h1>
+    <pre id="jsonDisplay"></pre>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script>
+        // Function to fetch the list of artifacts and download the latest one
+        async function downloadLatestArtifact(url, accessToken) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                const data = await response.json();
+                const artifacts = data.artifacts;
+
+                if (artifacts && artifacts.length > 0) {
+                    // Sort artifacts by creation date in descending order
+                    artifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                    // Get the latest artifact
+                    const latestArtifact = artifacts[0];
+
+                    // Download the latest artifact
+                    const downloadResponse = await fetch(latestArtifact.archive_download_url, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    const blob = await downloadResponse.blob();
+
+                    // Extract the ZIP archive
+                    const zip = new JSZip();
+                    const zipData = await zip.loadAsync(blob);
+                    const jsonFile = zipData.files['comments.json'];
+
+                    if (!jsonFile) {
+                        console.error('JSON file not found in the ZIP archive.');
+                        return;
+                    }
+
+                    // Read the contents of the JSON file
+                    const jsonData = await jsonFile.async('text');
+
+                    // Show the JSON data directly in the page
+                    const jsonDisplay = document.getElementById('jsonDisplay');
+                    jsonDisplay.textContent = jsonData;
+                } else {
+                    console.error('No artifacts found.');
+                }
+            } catch (error) {
+                console.error('Error fetching or downloading artifact:', error);
+            }
+        }
+
+        // Llamamos a la función downloadLatestArtifact() con el URL de la API de GitHub y el token de acceso
+        const apiURL = 'https://api.github.com/repos/Artur16211/steamguide_comments/actions/artifacts';
+        const accessToken = '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';
+        downloadLatestArtifact(apiURL, accessToken);
+    </script>
+</body>
+
+</html>
