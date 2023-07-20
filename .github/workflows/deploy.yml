@@ -12,13 +12,17 @@ jobs:
     name: Deploy comments.json
     runs-on: ubuntu-latest
     steps:
+      - name: Get the latest run ID of extract comments
+        id: get_latest_run
+        run: echo "::set-output name=latest_run_id::5606118005"
+
       - name: Download Comments Artifact
         uses: actions/download-artifact@v2
         with:
           name: comments
           path: comments
         env:
-          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ID: 5606118005
 
       - name: Copy Artifact to docs folder
         run: |
