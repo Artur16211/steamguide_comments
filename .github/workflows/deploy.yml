@@ -3,11 +3,9 @@ name: Deploy Comments Artifact
 on:
   workflow_run:
     workflows: ["extract comments"]
-    branches: [main]  # Puedes cambiar 'main' a la rama que desees
+    branches: [main]
     types:
       - completed
-  workflow_dispatch:  # Agregar esta línea para habilitar la ejecución manual
-    # No es necesario agregar ninguna entrada personalizada para este flujo de trabajo
 
 jobs:
   deploy:
@@ -19,10 +17,12 @@ jobs:
         with:
           name: comments
           path: comments
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
 
       - name: Copy Artifact to docs folder
         run: |
-          mkdir -p docs  # Crea una carpeta 'docs' en la raíz del repositorio (o la carpeta que uses para tu GitHub Page)
+          mkdir -p docs
           cp comments/comments.json docs/
 
       - name: Commit Changes
