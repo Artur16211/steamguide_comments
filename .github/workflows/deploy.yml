@@ -6,6 +6,11 @@ on:
     branches: [main]  # Puedes cambiar 'main' a la rama que desees
     types:
       - completed
+  workflow_dispatch:  # Agregar esta línea para habilitar la ejecución manual
+    inputs:
+      manual_trigger:
+        description: 'Ejecutar el despliegue manualmente'
+        required: true
 
 jobs:
   deploy:
