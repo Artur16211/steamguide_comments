@@ -27,20 +27,19 @@ jobs:
       - name: Crear directorio de artefacto
         run: mkdir artifacts
 
-      - name: Mover comments.json al directorio de artefacto
-        run: mv comments.json artifacts/
+      - name: Mover comments.json a la raíz del directorio de artefacto
+        run: mv artifacts/comments.json comments.json
 
       - name: Guardar directorio como artefacto
-        if: always()  # This ensures that the step runs even if the previous step fails
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: comments
           path: artifacts/
-          
+
       - name: Publicar el directorio 'artifacts' con GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}  # Utiliza el secreto aquí
-
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           publish_dir: ./artifacts
