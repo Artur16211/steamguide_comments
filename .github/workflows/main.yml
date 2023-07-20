@@ -17,37 +17,34 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v3
 
-      - name: Configurar Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11  # Cambia a la versión de Python que necesites
+      # Resto del flujo de trabajo, incluyendo la generación de artifacts y el archivo index.html
 
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
-
-      - name: Ejecutar script para obtener comentarios
-        run: python extract_comments.py ${{ github.event.inputs.url }}
-
-      - name: Guardar comments.json como artefacto
-        if: always()  # This ensures that the step runs even if the previous step fails
-        uses: actions/upload-artifact@v2
-        with:
-          name: comments
-          path: comments.json
-
-      - name: Crear archivo HTML con enlace al último artifact
-        run: |
-          LATEST_ARTIFACT=$(ls -t $GITHUB_WORKSPACE/comments*.json | head -1)
-          echo "<html><body><a href=\"$LATEST_ARTIFACT\">Descargar último artifact</a></body></html>" > $GITHUB_WORKSPACE/index.html
-        # Especificar la ruta absoluta del archivo index.html
-        working-directory: ${{ github.workspace }}
-
-      - name: Mostrar contenido del archivo HTML
-        run: cat $GITHUB_WORKSPACE/index.html
-
-      - name: Subir archivo HTML como artefacto
+      - name: Guardar index.html como artefacto
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: artifact_index
+          name: index_html
           path: $GITHUB_WORKSPACE/index.html
+
+  deploy_pages:
+    name: Desplegar en GitHub Pages
+    runs-on: ubuntu-latest
+    needs: run_script
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Restaurar index.html como artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: index_html
+          path: $GITHUB_WORKSPACE
+
+      - name: Desplegar en GitHub Pages
+        run: |
+          mv $GITHUB_WORKSPACE/index.html $GITHUB_WORKSPACE/path/to/last_artifact
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add path/to/last_artifact
+          git commit -m "Actualizar enlace al último artifact"
+          git push origin main
