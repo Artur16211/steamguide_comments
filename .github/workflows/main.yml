@@ -39,6 +39,8 @@ jobs:
         run: |
           LATEST_ARTIFACT=$(ls -t $GITHUB_WORKSPACE/comments*.json | head -1)
           echo "<html><body><a href=\"$LATEST_ARTIFACT\">Descargar último artifact</a></body></html>" > $GITHUB_WORKSPACE/index.html
+        # Especificar la ruta absoluta del archivo index.html
+        working-directory: ${{ github.workspace }}
 
       - name: Mostrar contenido del archivo HTML
         run: cat $GITHUB_WORKSPACE/index.html
