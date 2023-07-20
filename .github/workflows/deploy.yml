@@ -1,0 +1,32 @@
+name: Deploy Comments Artifact
+
+on:
+  workflow_run:
+    workflows: ["extract comments"]
+    branches: [main]  # Puedes cambiar 'main' a la rama que desees
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy comments.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Comments Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: comments
+          path: comments
+
+      - name: Copy Artifact to docs folder
+        run: |
+          mkdir -p docs  # Crea una carpeta 'docs' en la raíz del repositorio (o la carpeta que uses para tu GitHub Page)
+          cp comments/comments.json docs/
+
+      - name: Commit Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/comments.json
+          git commit -m "Update comments.json [skip ci]"
+          git push
