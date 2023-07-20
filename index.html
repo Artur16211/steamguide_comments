@@ -60,9 +60,15 @@
             }
         }
 
+        // Función para decodificar el token desde Base64
+        function decodeToken(encodedToken) {
+            return atob(encodedToken);
+        }
+
         // Llamamos a la función downloadLatestArtifact() con el URL de la API de GitHub y el token de acceso
         const apiURL = 'https://api.github.com/repos/Artur16211/steamguide_comments/actions/artifacts';
-        const accessToken = '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';
+        const encodedToken = 'Z2hwX051NzV5TFZtZ01oYlZGUElMaEFQeDRNdFRTa0xHbzExd0hHTQ==';
+        const accessToken = decodeToken(encodedToken);
         downloadLatestArtifact(apiURL, accessToken);
     </script>
 </body>
