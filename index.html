@@ -1,85 +1,75 @@
-<!DOCTYPE html>
-<html>
+<pre id="jsonDisplay"></pre>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+<script>
+    // Function to fetch the list of artifacts and download the latest one
+    // Function to fetch the list of artifacts and download the latest one for the specified workflow
+    async function downloadLatestWorkflowArtifact(url, accessToken, workflowName) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            const data = await response.json();
+            const artifacts = data.artifacts;
 
-<head>
-    <title>Descargar y mostrar comments.json</title>
-</head>
+            if (artifacts && artifacts.length > 0) {
+                // Filter artifacts that match the specified workflow name
+                const workflowArtifacts = artifacts.filter(artifact => artifact.name === workflowName);
 
-<body>
-    <pre id="jsonDisplay"></pre>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
-    <script>
-        // Function to fetch the list of artifacts and download the latest one
-        // Function to fetch the list of artifacts and download the latest one for the specified workflow
-        async function downloadLatestWorkflowArtifact(url, accessToken, workflowName) {
-            try {
-                const response = await fetch(url, {
+                if (workflowArtifacts.length === 0) {
+                    console.error(`No artifacts found for the workflow "${workflowName}".`);
+                    return;
+                }
+
+                // Sort the workflow artifacts by creation date in descending order
+                workflowArtifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                // Get the latest artifact for the specified workflow
+                const latestWorkflowArtifact = workflowArtifacts[0];
+
+                // Download the latest workflow artifact
+                const downloadResponse = await fetch(latestWorkflowArtifact.archive_download_url, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 });
-                const data = await response.json();
-                const artifacts = data.artifacts;
+                const blob = await downloadResponse.blob();
 
-                if (artifacts && artifacts.length > 0) {
-                    // Filter artifacts that match the specified workflow name
-                    const workflowArtifacts = artifacts.filter(artifact => artifact.name === workflowName);
+                // Extract the ZIP archive
+                const zip = new JSZip();
+                const zipData = await zip.loadAsync(blob);
+                const jsonFile = zipData.files['comments.json'];
 
-                    if (workflowArtifacts.length === 0) {
-                        console.error(`No artifacts found for the workflow "${workflowName}".`);
-                        return;
-                    }
-
-                    // Sort the workflow artifacts by creation date in descending order
-                    workflowArtifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                    // Get the latest artifact for the specified workflow
-                    const latestWorkflowArtifact = workflowArtifacts[0];
-
-                    // Download the latest workflow artifact
-                    const downloadResponse = await fetch(latestWorkflowArtifact.archive_download_url, {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    });
-                    const blob = await downloadResponse.blob();
-
-                    // Extract the ZIP archive
-                    const zip = new JSZip();
-                    const zipData = await zip.loadAsync(blob);
-                    const jsonFile = zipData.files['comments.json'];
-
-                    if (!jsonFile) {
-                        console.error('JSON file not found in the ZIP archive.');
-                        return;
-                    }
-
-                    // Read the contents of the JSON file
-                    const jsonData = await jsonFile.async('text');
-
-                    // Show the JSON data directly in the page
-                    const jsonDisplay = document.getElementById('jsonDisplay');
-                    jsonDisplay.textContent = jsonData;
-                } else {
-                    console.error('No artifacts found.');
+                if (!jsonFile) {
+                    console.error('JSON file not found in the ZIP archive.');
+                    return;
                 }
-            } catch (error) {
-                console.error('Error fetching or downloading artifact:', error);
+
+                // Read the contents of the JSON file
+                const jsonData = await jsonFile.async('text');
+
+                // Show the JSON data directly in the page
+                const jsonDisplay = document.getElementById('jsonDisplay');
+                const formattedJsonData = JSON.stringify(JSON.parse(jsonData), null, 2);
+                jsonDisplay.textContent = formattedJsonData;
+            } else {
+                console.error('No artifacts found.');
             }
+        } catch (error) {
+            console.error('Error fetching or downloading artifact:', error);
         }
+    }
 
-        // Función para decodificar el token desde Base64
-        function decodeToken(encodedToken) {
-            return atob(encodedToken);
-        }
+    // Función para decodificar el token desde Base64
+    function decodeToken(encodedToken) {
+        return atob(encodedToken);
+    }
 
-        // Llamamos a la función downloadLatestWorkflowArtifact() con el URL de la API de GitHub, el token de acceso y el nombre del flujo de trabajo
-        const apiURL = 'https://api.github.com/repos/Artur16211/steamguide_comments/actions/artifacts';
-        const encodedToken = 'Z2hwX051NzV5TFZtZ01oYlZGUElMaEFQeDRNdFRTa0xHbzExd0hHTQ==';
-        const accessToken = decodeToken(encodedToken);
-        const workflowName = 'comments'; // Reemplaza esto con el nombre del flujo de trabajo deseado
-        downloadLatestWorkflowArtifact(apiURL, accessToken, workflowName);
-    </script>
-</body>
-
-</html>
+    // Llamamos a la función downloadLatestWorkflowArtifact() con el URL de la API de GitHub, el token de acceso y el nombre del flujo de trabajo
+    const apiURL = 'https://api.github.com/repos/Artur16211/steamguide_comments/actions/artifacts';
+    const encodedToken = 'Z2hwX051NzV5TFZtZ01oYlZGUElMaEFQeDRNdFRTa0xHbzExd0hHTQ==';
+    const accessToken = decodeToken(encodedToken);
+    const workflowName = 'comments'; // Reemplaza esto con el nombre del flujo de trabajo deseado
+    downloadLatestWorkflowArtifact(apiURL, accessToken, workflowName);
+</script>
