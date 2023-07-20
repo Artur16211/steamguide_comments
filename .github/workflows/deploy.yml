@@ -7,10 +7,7 @@ on:
     types:
       - completed
   workflow_dispatch:  # Agregar esta línea para habilitar la ejecución manual
-    inputs:
-      manual_trigger:
-        description: 'Ejecutar el despliegue manualmente'
-        required: true
+    # No es necesario agregar ninguna entrada personalizada para este flujo de trabajo
 
 jobs:
   deploy:
