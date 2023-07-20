@@ -36,3 +36,11 @@ jobs:
         with:
           name: comments
           path: artifacts/
+          
+      - name: Publicar el directorio 'artifacts' con GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}  # Utiliza el secreto aquí
+
+          publish_dir: ./artifacts
