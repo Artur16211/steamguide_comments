@@ -29,7 +29,7 @@ jobs:
       - name: Obtener información de los artifacts
         id: artifacts_info
         run: |
-          echo "::set-output name=artifact_url::$(curl -s -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[0].archive_download_url')"
+          echo "::set-output name=artifact_url::$(curl -s -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[0].archive_download_url')"
 
   deploy_pages:
     name: Desplegar en GitHub Pages
@@ -48,7 +48,7 @@ jobs:
       - name: Obtener URL del último artifact
         id: get_artifact_url
         run: |
-          artifact_url=$(curl -s -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[0].archive_download_url')
+          artifact_url=$(curl -s -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[0].archive_download_url')
           echo "::set-output name=artifact_url::$artifact_url"
 
       - name: Actualizar enlace al último artifact en index.html
