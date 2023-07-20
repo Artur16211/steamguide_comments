@@ -10,7 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
     <script>
         // Function to fetch the list of artifacts and download the latest one
-        async function downloadLatestArtifact(url, accessToken) {
+        // Function to fetch the list of artifacts and download the latest one for the specified workflow
+        async function downloadLatestWorkflowArtifact(url, accessToken, workflowName) {
             try {
                 const response = await fetch(url, {
                     headers: {
@@ -21,14 +22,22 @@
                 const artifacts = data.artifacts;
 
                 if (artifacts && artifacts.length > 0) {
-                    // Sort artifacts by creation date in descending order
-                    artifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    // Filter artifacts that match the specified workflow name
+                    const workflowArtifacts = artifacts.filter(artifact => artifact.name === workflowName);
 
-                    // Get the latest artifact
-                    const latestArtifact = artifacts[0];
+                    if (workflowArtifacts.length === 0) {
+                        console.error(`No artifacts found for the workflow "${workflowName}".`);
+                        return;
+                    }
 
-                    // Download the latest artifact
-                    const downloadResponse = await fetch(latestArtifact.archive_download_url, {
+                    // Sort the workflow artifacts by creation date in descending order
+                    workflowArtifacts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                    // Get the latest artifact for the specified workflow
+                    const latestWorkflowArtifact = workflowArtifacts[0];
+
+                    // Download the latest workflow artifact
+                    const downloadResponse = await fetch(latestWorkflowArtifact.archive_download_url, {
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
@@ -64,11 +73,12 @@
             return atob(encodedToken);
         }
 
-        // Llamamos a la función downloadLatestArtifact() con el URL de la API de GitHub y el token de acceso
+        // Llamamos a la función downloadLatestWorkflowArtifact() con el URL de la API de GitHub, el token de acceso y el nombre del flujo de trabajo
         const apiURL = 'https://api.github.com/repos/Artur16211/steamguide_comments/actions/artifacts';
         const encodedToken = 'Z2hwX051NzV5TFZtZ01oYlZGUElMaEFQeDRNdFRTa0xHbzExd0hHTQ==';
         const accessToken = decodeToken(encodedToken);
-        downloadLatestArtifact(apiURL, accessToken);
+        const workflowName = 'comments'; // Reemplaza esto con el nombre del flujo de trabajo deseado
+        downloadLatestWorkflowArtifact(apiURL, accessToken, workflowName);
     </script>
 </body>
 
