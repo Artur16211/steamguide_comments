@@ -38,8 +38,8 @@ jobs:
       # 6. Configurar credenciales para push manual
       - name: Configure Git
         run: |
-          git config --global user.email "tu-correo@ejemplo.com"
-          git config --global user.name "TuNombreDeUsuario"
+          git config --global user.email "herrera.alvaradoartu@gmail.com"
+          git config --global user.name "Artur16211"
 
       # 7. Hacer commit y push manualmente con tu token
       - name: Commit and Push Changes
