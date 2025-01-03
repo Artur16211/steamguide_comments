@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON Data Display</title>
+</head>
+
+<body>
+    <pre id="jsonDisplay"></pre>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script>
+        async function displayJsonData(jsonData) {
+            try {
+                const jsonDisplay = document.getElementById('jsonDisplay');
+                const formattedJsonData = JSON.stringify(JSON.parse(jsonData), null, 2);
+                jsonDisplay.textContent = formattedJsonData;
+            } catch (error) {
+                console.error('Error displaying JSON data:', error);
+            }
+        }
+    
+        async function fetchJson() {
+            try {
+                const response = await fetch('./comments.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const jsonData = await response.text();
+                displayJsonData(jsonData);
+            } catch (error) {
+                console.error('Error fetching JSON:', error);
+            }
+        }
+    
+        fetchJson();
+    </script>    
+</body>
+
+</html>
