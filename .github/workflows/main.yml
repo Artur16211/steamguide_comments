@@ -35,9 +35,18 @@ jobs:
           mkdir -p docs
           mv comments.json docs/
 
-      # 6. Desplegar en GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs
+      # 6. Configurar credenciales para push manual
+      - name: Configure Git
+        run: |
+          git config --global user.email "tu-correo@ejemplo.com"
+          git config --global user.name "TuNombreDeUsuario"
+
+      # 7. Hacer commit y push manualmente con tu token
+      - name: Commit and Push Changes
+        env:
+          TOKEN: ${{ secrets.COMMENTS_STEAM }}
+        run: |
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          git add docs/comments.json
+          git commit -m "Update comments.json [skip ci]" || echo "No changes to commit"
+          git push origin gh-pages
