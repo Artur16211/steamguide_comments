@@ -8,7 +8,7 @@ on:
 jobs:
   run_script:
     name: Ejecutar script
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
 
       - name: Guardar directorio como artefacto
         if: always()  # This ensures that the step runs even if the previous step fails
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: comments
           path: artifacts/
