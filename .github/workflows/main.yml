@@ -44,7 +44,7 @@ jobs:
       # 7. Hacer commit y push manualmente con tu token
       - name: Commit and Push Changes
         env:
-          TOKEN: ${{ secrets.comments_steam }}
+          TOKEN: ${{ secrets.COMMENTS_STEAM }}
         run: |
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
           git add docs/comments.json
