@@ -1,38 +1,43 @@
-name: extract comments
+name: Extract and Deploy Comments
 
 on:
   schedule:
-    - cron: "18 22 * * *"
-  workflow_dispatch:
+    - cron: "18 22 * * *"  # Programa automático diario
+  workflow_dispatch:        # Ejecución manual
 
 jobs:
-  run_script:
-    name: Ejecutar script
+  extract_and_deploy:
+    name: Extract Comments and Deploy to GitHub Pages
     runs-on: ubuntu-24.04
+
     steps:
-      - name: Checkout del repositorio
+      # 1. Checkout del repositorio
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configurar Python
+      # 2. Configurar Python
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.11  # Cambia a la versión de Python que necesites
+          python-version: 3.11
 
-      - name: Instalar dependencias
+      # 3. Instalar dependencias
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Ejecutar script y guardar archivo comments.json
+      # 4. Ejecutar script y generar comments.json
+      - name: Run script to extract comments
         run: python extract_comments.py
 
-      - name: Crear directorio de artefacto
-        run: mkdir artifacts
+      # 5. Mover comments.json al directorio docs
+      - name: Move comments.json to docs folder
+        run: |
+          mkdir -p docs
+          mv comments.json docs/
 
-      - name: Mover comments.json al directorio de artefacto
-        run: mv comments.json artifacts/
-
-      - name: Guardar directorio como artefacto
-        if: always()  # This ensures that the step runs even if the previous step fails
-        uses: actions/upload-artifact@v4
+      # 6. Desplegar en GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: comments
-          path: artifacts/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
