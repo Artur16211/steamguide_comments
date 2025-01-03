@@ -49,4 +49,4 @@ jobs:
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
           git add docs/comments.json
           git commit -m "Update comments.json [skip ci]" || echo "No changes to commit"
-          git push origin gh-pages
+          git push origin main
