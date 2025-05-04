@@ -124,13 +124,13 @@ def getAllComments(url=None):
         
         comments_section = soup.find(class_='commentthread_area')
         if not comments_section:
-            print("Warning: No se encontró la sección de comentarios en el HTML. Usando archivo de respaldo.")
-            return load_comments_from_json(BACKUP_JSON_PATH)
+            print("Warning: No se encontró la sección de comentarios en el HTML.")
+            return None
 
         comment_containers = comments_section.find_all(class_='commentthread_comment')
         if not comment_containers:
-            print("Warning: No se encontraron contenedores de comentarios. Usando archivo de respaldo.")
-            return load_comments_from_json(BACKUP_JSON_PATH)
+            print("Warning: No se encontraron contenedores de comentarios.")
+            return None
 
         new_comments = []
         for container in comment_containers:
@@ -161,27 +161,44 @@ def getAllComments(url=None):
                 print(f"Error procesando un comentario: {e}")
                 continue
 
-        # Combinar con comentarios antiguos
-        combined_comments = combine_comments(new_comments)
-        
-        # Guardar los comentarios combinados
-        save_comments_to_json(combined_comments, BACKUP_JSON_PATH)
-        return combined_comments
+        return new_comments
 
     except Exception as e:
-        print(f"Error al obtener comentarios: {e}. Usando archivo de respaldo.")
-        return load_comments_from_json(BACKUP_JSON_PATH)
+        print(f"Error al obtener comentarios: {e}")
+        return None
 
 
 def main():
     url = sys.argv[1] if len(sys.argv) > 1 else None
-    comments = getAllComments(url)
+    
+    # Intentar obtener nuevos comentarios
+    new_comments = getAllComments(url)
+    
+    # Cargar comentarios existentes
+    current_comments = load_comments_from_json(BACKUP_JSON_PATH)
+    
+    # Cargar comentarios antiguos
+    old_comments = []
+    if os.path.exists('comments_old.json'):
+        old_comments = load_comments_from_json('comments_old.json')
+    
+    # Determinar qué comentarios vamos a usar
+    if new_comments is not None:
+        # Si obtuvimos nuevos comentarios, los combinamos con los antiguos
+        all_comments = combine_comments(new_comments, old_comments)
+    else:
+        # Si no obtuvimos nuevos, combinamos los actuales con los antiguos
+        print("Usando archivos locales para combinar comentarios...")
+        all_comments = combine_comments(current_comments, old_comments)
+    
+    # Guardar los comentarios combinados
+    save_comments_to_json(all_comments, BACKUP_JSON_PATH)
     
     # Mostrar los comentarios obtenidos
-    for comment in comments:
+    for comment in all_comments:
         print(f"{comment.get('author')} ({comment.get('timestamp')}): {comment.get('comment')}")
     
-    print(f"\nTotal de comentarios: {len(comments)}")
+    print(f"\nTotal de comentarios: {len(all_comments)}")
 
 
 if __name__ == '__main__':
