@@ -70,12 +70,29 @@ def progressRange(start, stop, step):
     print(f"Progress: [{stop}/{stop}={1.:0.2f}]")
 
 
-def save_comments_to_json(comments):
+def save_comments_to_json(new_comments):
+    all_comments = new_comments
+
+    try:
+        with open('comments_old.json', 'r') as old_file:
+            old_data = json.load(old_file)
+            if isinstance(old_data, list):
+                old_comments = old_data
+            elif isinstance(old_data, dict) and 'comments' in old_data:
+                old_comments = old_data['comments']
+            else:
+                old_comments = []
+            all_comments += old_comments
+    except FileNotFoundError:
+        # No old comments to merge
+        pass
+
     data = {
-        'comments': comments
+        'comments': all_comments
     }
-    with open('comments.json', 'w') as file:
-        json.dump(data, file)
+    with open('comments.json', 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
 
 
 def getAllComments(url=None):
