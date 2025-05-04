@@ -13,7 +13,7 @@ from pathlib import Path
 
 # config variables:
 exampleInputUrl = 'https://steamcommunity.com/sharedfiles/filedetails/?id=2819323099'
-BACKUP_JSON_PATH = 'docs/comments.json'  # Ruta al archivo JSON de respaldo
+BACKUP_JSON_PATH = 'comments.json'  # Ruta al archivo JSON de respaldo
 # end config
 
 
