@@ -10,6 +10,7 @@ from datetime import datetime
 import dateparser
 
 import json
+import os
 
 
 # config variables:
@@ -94,6 +95,16 @@ def save_comments_to_json(new_comments):
         json.dump(data, file, ensure_ascii=False, indent=2)
 
 
+def load_existing_comments():
+    try:
+        with open('comments.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            if isinstance(data, dict) and 'comments' in data:
+                return data['comments']
+            return data if isinstance(data, list) else []
+    except FileNotFoundError:
+        return []
+
 
 def getAllComments(url=None):
     if url is None:
@@ -102,7 +113,12 @@ def getAllComments(url=None):
     response = requests.get(url)
     soup = bs4.BeautifulSoup(response.text, 'html.parser')
     commentsSection = soup.find(class_='commentthread_area')
-    assert commentsSection, "Cannot find 'commentthread_area' class"
+    
+    if not commentsSection:
+        print("No se encontró la sección de comentarios, devolviendo comentarios existentes")
+        existing_comments = load_existing_comments()
+        save_comments_to_json([])  # Esto preservará los comentarios existentes
+        return existing_comments
 
     commentContainers = commentsSection.find_all(
         class_='commentthread_comment')
@@ -135,11 +151,13 @@ def getAllComments(url=None):
         comments.append(comment)
 
     save_comments_to_json(comments)
+    return comments
 
 
 def main():
     url = sys.argv[1] if len(sys.argv) > 1 else None
-    getAllComments(url)
+    comments = getAllComments(url)
+    print(f"Se procesaron {len(comments)} comentarios")
 
 
 if __name__ == '__main__':

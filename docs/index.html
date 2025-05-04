@@ -7,41 +7,33 @@
 
 <body>
     <pre id="jsonDisplay"></pre>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
     <script>
-        async function fetchAndCombineJSON() {
+        async function displayJsonData(jsonData) {
             try {
-                // Cargar ambos archivos JSON en paralelo
-                const [responseOld, responseNew] = await Promise.all([
-                    fetch('./comments_old.json'),
-                    fetch('./comments.json')
-                ]);
-
-                if (!responseOld.ok || !responseNew.ok) {
-                    throw new Error('Error al cargar uno de los archivos JSON');
-                }
-
-                const oldData = await responseOld.json();
-                const newData = await responseNew.json();
-
-                // Combinar los arrays de comentarios sin alterar su orden
-                const combined = {
-                    comments: [
-                        ...(newData.comments || []),  // Primero los nuevos comentarios
-                        ...(oldData.comments || [])   // Luego los viejos comentarios
-                    ]
-                };
-
-                // Mostrar el JSON combinado de forma legible
                 const jsonDisplay = document.getElementById('jsonDisplay');
-                jsonDisplay.textContent = JSON.stringify(combined, null, 2);
-
+                const formattedJsonData = JSON.stringify(JSON.parse(jsonData), null, 2);
+                jsonDisplay.textContent = formattedJsonData;
             } catch (error) {
-                console.error('Error combinando los JSON:', error);
+                console.error('Error displaying JSON data:', error);
             }
         }
-
-        fetchAndCombineJSON();
-    </script>
+    
+        async function fetchJson() {
+            try {
+                const response = await fetch('./comments.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const jsonData = await response.text();
+                displayJsonData(jsonData);
+            } catch (error) {
+                console.error('Error fetching JSON:', error);
+            }
+        }
+    
+        fetchJson();
+    </script>    
 </body>
 
 </html>
