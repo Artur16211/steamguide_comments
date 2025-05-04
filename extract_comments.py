@@ -13,7 +13,7 @@ from pathlib import Path
 
 # config variables:
 exampleInputUrl = 'https://steamcommunity.com/sharedfiles/filedetails/?id=2819323099'
-BACKUP_JSON_PATH = 'comments.json'  # Ruta al archivo JSON de respaldo
+BACKUP_JSON_PATH = 'comments.json'
 # end config
 
 
@@ -77,7 +77,7 @@ def save_comments_to_json(comments, filepath='comments.json'):
     # Crear directorio si no existe
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
     with open(filepath, 'w') as file:
-        json.dump(data, file, indent=2)
+        json.dump(data, file, indent=2, default=str)
 
 
 def load_comments_from_json(filepath):
@@ -89,13 +89,37 @@ def load_comments_from_json(filepath):
         return []
 
 
+def combine_comments(new_comments, old_comments_path='comments_old.json'):
+    # Cargar comentarios antiguos si el archivo existe
+    old_comments = []
+    if os.path.exists(old_comments_path):
+        old_comments = load_comments_from_json(old_comments_path)
+    
+    # Combinar los comentarios (nuevos primero, luego los antiguos)
+    combined_comments = new_comments + old_comments
+    
+    # Eliminar duplicados (basado en autor, timestamp y parte del mensaje)
+    unique_comments = []
+    seen = set()
+    for comment in combined_comments:
+        # Creamos una clave única basada en autor, timestamp y parte del mensaje
+        identifier = (comment.get('author'), 
+                     comment.get('timestamp'), 
+                     str(comment.get('comment'))[:50])
+        if identifier not in seen:
+            seen.add(identifier)
+            unique_comments.append(comment)
+    
+    return unique_comments
+
+
 def getAllComments(url=None):
     if url is None:
         url = exampleInputUrl
 
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, 'html.parser')
         
         comments_section = soup.find(class_='commentthread_area')
@@ -108,7 +132,7 @@ def getAllComments(url=None):
             print("Warning: No se encontraron contenedores de comentarios. Usando archivo de respaldo.")
             return load_comments_from_json(BACKUP_JSON_PATH)
 
-        comments = []
+        new_comments = []
         for container in comment_containers:
             try:
                 avatar = container.find(class_='commentthread_comment_avatar')
@@ -132,14 +156,17 @@ def getAllComments(url=None):
                     'comment': comment_text
                 }
 
-                comments.append(comment)
+                new_comments.append(comment)
             except Exception as e:
                 print(f"Error procesando un comentario: {e}")
                 continue
 
-        # Guardar los nuevos comentarios obtenidos
-        save_comments_to_json(comments, BACKUP_JSON_PATH)
-        return comments
+        # Combinar con comentarios antiguos
+        combined_comments = combine_comments(new_comments)
+        
+        # Guardar los comentarios combinados
+        save_comments_to_json(combined_comments, BACKUP_JSON_PATH)
+        return combined_comments
 
     except Exception as e:
         print(f"Error al obtener comentarios: {e}. Usando archivo de respaldo.")
