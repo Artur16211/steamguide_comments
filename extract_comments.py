@@ -89,23 +89,35 @@ def load_comments_from_json(filepath):
         return []
 
 
-def combine_comments(new_comments, old_comments_path='comments_old.json'):
-    # Cargar comentarios antiguos si el archivo existe
-    old_comments = []
-    if os.path.exists(old_comments_path):
-        old_comments = load_comments_from_json(old_comments_path)
+def combine_comments(new_comments, old_comments=None, old_comments_path='comments_old.json'):
+    """
+    Combina listas de comentarios y elimina duplicados.
+    
+    Args:
+        new_comments: Lista de comentarios nuevos
+        old_comments: Lista directa de comentarios antiguos (opcional)
+        old_comments_path: Ruta al archivo de comentarios antiguos (si no se proporciona lista)
+    """
+    # Cargar comentarios antiguos
+    if old_comments is None:
+        if os.path.exists(old_comments_path):
+            old_comments = load_comments_from_json(old_comments_path)
+        else:
+            old_comments = []
     
     # Combinar los comentarios (nuevos primero, luego los antiguos)
     combined_comments = new_comments + old_comments
     
-    # Eliminar duplicados (basado en autor, timestamp y parte del mensaje)
+    # Eliminar duplicados
     unique_comments = []
     seen = set()
     for comment in combined_comments:
         # Creamos una clave única basada en autor, timestamp y parte del mensaje
-        identifier = (comment.get('author'), 
-                     comment.get('timestamp'), 
-                     str(comment.get('comment'))[:50])
+        identifier = (
+            comment.get('author', ''), 
+            comment.get('timestamp', ''), 
+            str(comment.get('comment', ''))[:50]
+        )
         if identifier not in seen:
             seen.add(identifier)
             unique_comments.append(comment)
@@ -178,28 +190,33 @@ def main():
     current_comments = load_comments_from_json(BACKUP_JSON_PATH)
     
     # Cargar comentarios antiguos
-    old_comments = []
-    if os.path.exists('comments_old.json'):
-        old_comments = load_comments_from_json('comments_old.json')
+    old_comments = load_comments_from_json('comments_old.json') if os.path.exists('comments_old.json') else []
     
     # Determinar qué comentarios vamos a usar
     if new_comments is not None:
         # Si obtuvimos nuevos comentarios, los combinamos con los antiguos
-        all_comments = combine_comments(new_comments, old_comments)
+        print("Combinando nuevos comentarios con archivo antiguo...")
+        all_comments = combine_comments(new_comments, old_comments=old_comments)
     else:
         # Si no obtuvimos nuevos, combinamos los actuales con los antiguos
         print("Usando archivos locales para combinar comentarios...")
-        all_comments = combine_comments(current_comments, old_comments)
+        all_comments = combine_comments(current_comments, old_comments=old_comments)
     
     # Guardar los comentarios combinados
     save_comments_to_json(all_comments, BACKUP_JSON_PATH)
     
-    # Mostrar los comentarios obtenidos
-    for comment in all_comments:
-        print(f"{comment.get('author')} ({comment.get('timestamp')}): {comment.get('comment')}")
+    # Mostrar estadísticas
+    print(f"\nResumen:")
+    print(f"- Comentarios nuevos obtenidos: {len(new_comments) if new_comments is not None else 0}")
+    print(f"- Comentarios existentes: {len(current_comments)}")
+    print(f"- Comentarios antiguos: {len(old_comments)}")
+    print(f"- Total combinado (sin duplicados): {len(all_comments)}")
     
-    print(f"\nTotal de comentarios: {len(all_comments)}")
-
+    # Mostrar algunos comentarios de ejemplo
+    if all_comments:
+        print("\nAlgunos comentarios de ejemplo:")
+        for comment in all_comments[:3]:  # Muestra los primeros 3
+            print(f"{comment.get('author')} ({comment.get('timestamp')}): {comment.get('comment')[:50]}...")
 
 if __name__ == '__main__':
     main()
