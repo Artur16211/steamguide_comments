@@ -5,10 +5,8 @@ from datetime import datetime
 from typing import Optional
 import bs4
 import requests
-
 from datetime import datetime
 import dateparser
-
 import json
 import os
 
@@ -71,93 +69,98 @@ def progressRange(start, stop, step):
     print(f"Progress: [{stop}/{stop}={1.:0.2f}]")
 
 
-def save_comments_to_json(new_comments):
-    all_comments = new_comments
-
+def load_comments_from_file(filename):
     try:
-        with open('comments_old.json', 'r') as old_file:
-            old_data = json.load(old_file)
-            if isinstance(old_data, list):
-                old_comments = old_data
-            elif isinstance(old_data, dict) and 'comments' in old_data:
-                old_comments = old_data['comments']
-            else:
-                old_comments = []
-            all_comments += old_comments
-    except FileNotFoundError:
-        # No old comments to merge
-        pass
-
-    data = {
-        'comments': all_comments
-    }
-    with open('comments.json', 'w', encoding='utf-8') as file:
-        json.dump(data, file, ensure_ascii=False, indent=2)
-
-
-def load_existing_comments():
-    try:
-        with open('comments.json', 'r', encoding='utf-8') as file:
+        with open(filename, 'r', encoding='utf-8') as file:
             data = json.load(file)
             if isinstance(data, dict) and 'comments' in data:
                 return data['comments']
             return data if isinstance(data, list) else []
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         return []
+
+
+def save_comments_to_json(new_comments):
+    # Cargar comentarios existentes de ambos archivos
+    old_comments = load_comments_from_file('comments_old.json')
+    existing_comments = load_comments_from_file('comments.json')
+    
+    # Combinar todos los comentarios (nuevos + existentes + old)
+    all_comments = new_comments + existing_comments + old_comments
+    
+    # Eliminar duplicados (opcional, puedes implementar lógica según tus necesidades)
+    unique_comments = []
+    seen = set()
+    for comment in all_comments:
+        # Creamos una tupla con los datos clave para identificar duplicados
+        comment_key = (comment.get('author'), comment.get('comment'), comment.get('timestamp'))
+        if comment_key not in seen:
+            seen.add(comment_key)
+            unique_comments.append(comment)
+    
+    data = {
+        'comments': unique_comments
+    }
+    with open('comments.json', 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
 
 
 def getAllComments(url=None):
     if url is None:
         url = exampleInputUrl
 
-    response = requests.get(url)
-    soup = bs4.BeautifulSoup(response.text, 'html.parser')
-    commentsSection = soup.find(class_='commentthread_area')
-    
-    if not commentsSection:
-        print("No se encontró la sección de comentarios, devolviendo comentarios existentes")
-        existing_comments = load_existing_comments()
-        save_comments_to_json([])  # Esto preservará los comentarios existentes
-        return existing_comments
+    try:
+        response = requests.get(url)
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        commentsSection = soup.find(class_='commentthread_area')
+        
+        if not commentsSection:
+            print("No se encontró la sección de comentarios, devolviendo comentarios existentes combinados")
+            return load_comments_from_file('comments.json') + load_comments_from_file('comments_old.json')
 
-    commentContainers = commentsSection.find_all(
-        class_='commentthread_comment')
+        commentContainers = commentsSection.find_all(
+            class_='commentthread_comment')
 
-    comments = []
-    for container in commentContainers:
-        avatar = container.find(class_='commentthread_comment_avatar')
-        avatar_img = avatar.find('img')['src']
+        comments = []
+        for container in commentContainers:
+            avatar = container.find(class_='commentthread_comment_avatar')
+            avatar_img = avatar.find('img')['src']
 
-        author = container.find(class_='commentthread_comment_author')
-        author_name = author.find('bdi').text.strip()
+            author = container.find(class_='commentthread_comment_author')
+            author_name = author.find('bdi').text.strip()
 
-        timestamp_tag = container.find(
-            class_='commentthread_comment_timestamp')
-        timestamp_str = timestamp_tag['title']
+            timestamp_tag = container.find(
+                class_='commentthread_comment_timestamp')
+            timestamp_str = timestamp_tag['title']
 
-        # Use dateparser to parse the timestamp
-        timestamp = dateparser.parse(timestamp_str)
+            # Use dateparser to parse the timestamp
+            timestamp = dateparser.parse(timestamp_str)
 
-        comment_text = container.find(
-            class_='commentthread_comment_text').text.strip()
+            comment_text = container.find(
+                class_='commentthread_comment_text').text.strip()
 
-        comment = {
-            'author': author_name,
-            'avatar': avatar_img,
-            'timestamp': timestamp.isoformat(),
-            'comment': comment_text
-        }
+            comment = {
+                'author': author_name,
+                'avatar': avatar_img,
+                'timestamp': timestamp.isoformat() if timestamp else None,
+                'comment': comment_text
+            }
 
-        comments.append(comment)
+            comments.append(comment)
 
-    save_comments_to_json(comments)
-    return comments
+        save_comments_to_json(comments)
+        return comments
+
+    except Exception as e:
+        print(f"Error al obtener comentarios: {e}")
+        print("Devolviendo comentarios existentes combinados")
+        return load_comments_from_file('comments.json') + load_comments_from_file('comments_old.json')
 
 
 def main():
     url = sys.argv[1] if len(sys.argv) > 1 else None
     comments = getAllComments(url)
-    print(f"Se procesaron {len(comments)} comentarios")
+    print(f"Total de comentarios obtenidos: {len(comments)}")
 
 
 if __name__ == '__main__':
