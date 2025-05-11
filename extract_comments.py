@@ -37,6 +37,10 @@ def extractComments(htmlText: str) -> list[Comment]:
     bs = bs4.BeautifulSoup(htmlText, "html.parser")
     for singleComment in bs.find_all(class_='commentthread_comment responsive_body_text'):
         try:
+            # Extraer avatar
+            avatar_tag = singleComment.find(class_='commentthread_comment_avatar')
+            avatar_url = avatar_tag.find('img')['src'] if avatar_tag and avatar_tag.find('img') else None
+            
             autor: str = singleComment.find('bdi').text.strip()
             message: str = singleComment.find(
                 class_='commentthread_comment_text').text.strip()
@@ -57,20 +61,24 @@ def extractComments(htmlText: str) -> list[Comment]:
                     date = datetime.now()  # Fallback final
                     print(f"Warning: Could not parse date: {timestamp}")
 
-            result.append(Comment(autor, message, date))
+            # Crear diccionario con todos los datos incluyendo el avatar
+            comment_data = {
+                'author': autor,
+                'message': message,
+                'timestamp': date.isoformat(),
+                'avatar': avatar_url
+            }
+            result.append(comment_data)
         except Exception as e:
             print(f"Error processing comment: {str(e)}")
             continue
             
     return result
 
+
 def save_comments_to_json(comments, filename):
     data = {
-        'comments': [{
-            'author': comment.autor,
-            'message': comment.message,
-            'timestamp': comment.timeStamp.isoformat()
-        } for comment in comments]
+        'comments': comments  # Ahora comments ya es una lista de diccionarios
     }
     with open(filename, 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
