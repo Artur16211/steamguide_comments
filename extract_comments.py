@@ -41,6 +41,11 @@ def extractComments(htmlText: str) -> list[Comment]:
             avatar_tag = singleComment.find(class_='commentthread_comment_avatar')
             avatar_url = avatar_tag.find('img')['src'] if avatar_tag and avatar_tag.find('img') else None
             
+            # Obtener avatar de más alta resolución
+            if avatar_url and 'steamstatic.com' in avatar_url and '_medium' not in avatar_url:
+                if avatar_url.endswith('.jpg'):
+                    avatar_url = avatar_url.replace('.jpg', '_medium.jpg')
+
             autor: str = singleComment.find('bdi').text.strip()
             message: str = singleComment.find(
                 class_='commentthread_comment_text').text.strip()
