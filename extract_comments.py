@@ -1,11 +1,12 @@
 ﻿import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict
 import bs4
 import requests
 import json
 import dateparser
+from pathlib import Path
 
 # Configuración
 urls = [
@@ -32,7 +33,7 @@ def extractFromScriptTag(scriptTag: bs4.Tag) -> Optional[str]:
         return
     return f'https://steamcommunity.com/comment/PublishedFile_Public/render/{ownerMatch.group(1)}/{feature.group(1)}/'
 
-def extractComments(htmlText: str) -> list[Comment]:
+def extractComments(htmlText: str) -> List[Dict]:
     result = []
     bs = bs4.BeautifulSoup(htmlText, "html.parser")
     for singleComment in bs.find_all(class_='commentthread_comment responsive_body_text'):
@@ -80,8 +81,39 @@ def extractComments(htmlText: str) -> list[Comment]:
             
     return result
 
- 
-def save_comments_to_json(comments, filename):
+def load_existing_comments(filename: str) -> List[Dict]:
+    """Carga los comentarios existentes de un archivo JSON en la carpeta docs/"""
+    filepath = Path('docs') / filename
+    if not filepath.exists():
+        return []
+    
+    with open(filepath, 'r', encoding='utf-8') as file:
+        try:
+            data = json.load(file)
+            return data.get('comments', [])
+        except json.JSONDecodeError:
+            return []
+
+def merge_comments(existing: List[Dict], new: List[Dict]) -> List[Dict]:
+    """Combina comentarios existentes con nuevos, eliminando duplicados y ordenando por fecha"""
+    # Crear un conjunto de identificadores únicos (autor + timestamp + mensaje)
+    existing_ids = {(c['author'], c['timestamp'], c['message']) for c in existing}
+    
+    # Filtrar nuevos comentarios que no están ya en los existentes
+    unique_new = [c for c in new if (c['author'], c['timestamp'], c['message']) not in existing_ids]
+    
+    # Combinar y ordenar por timestamp (más nuevos primero)
+    merged = existing + unique_new
+    merged.sort(key=lambda x: x['timestamp'], reverse=True)
+    
+    return merged
+
+def save_comments_to_json(comments: List[Dict], filename: str):
+    """Guarda los comentarios en un archivo JSON dentro de la carpeta docs/"""
+    # Crear la carpeta docs si no existe
+    Path('docs').mkdir(exist_ok=True)
+    
+    filepath = Path('docs') / filename
     data = {
         'comments': [{
             'author': comment['author'],
@@ -90,10 +122,10 @@ def save_comments_to_json(comments, filename):
             'comment': comment['message']
         } for comment in comments]
     }
-    with open(filename, 'w', encoding='utf-8') as file:
+    with open(filepath, 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
 
-def get_comments_from_url(url, index):
+def get_comments_from_url(url: str, index: int) -> List[Dict]:
     print(f"Procesando URL {index + 1}: {url}")
     response = requests.get(url)
     soup = bs4.BeautifulSoup(response.text, 'html.parser')
@@ -109,10 +141,19 @@ def get_comments_from_url(url, index):
 def main():
     for i, url in enumerate(urls[:4]):  # Solo procesamos 4 URLs
         try:
-            comments = get_comments_from_url(url, i)
             filename = f'comments_{i+1}.json'
-            save_comments_to_json(comments, filename)
-            print(f"Comentarios guardados en {filename} ({len(comments)} comentarios)")
+            
+            # Cargar comentarios existentes
+            existing_comments = load_existing_comments(filename)
+            
+            # Obtener nuevos comentarios
+            new_comments = get_comments_from_url(url, i)
+            
+            # Combinar y guardar
+            merged_comments = merge_comments(existing_comments, new_comments)
+            save_comments_to_json(merged_comments, filename)
+            
+            print(f"Comentarios guardados en docs/{filename} ({len(merged_comments)} comentarios totales, {len(new_comments)} nuevos)")
         except Exception as e:
             print(f"Error al procesar la URL {i + 1}: {str(e)}")
 
