@@ -64,7 +64,7 @@ def extractComments(htmlText: str) -> list[Comment]:
             # Crear diccionario con todos los datos incluyendo el avatar
             comment_data = {
                 'author': autor,
-                'comment': message,
+                'message': message,
                 'timestamp': date.isoformat(),
                 'avatar': avatar_url
             }
@@ -78,7 +78,12 @@ def extractComments(htmlText: str) -> list[Comment]:
 
 def save_comments_to_json(comments, filename):
     data = {
-        'comments': comments  # Ahora comments ya es una lista de diccionarios
+        'comments': [{
+            'author': comment['author'],
+            'comment': comment['message'],
+            'timestamp': comment['timestamp'],
+            'avatar': comment['avatar']
+        } for comment in comments]
     }
     with open(filename, 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
