@@ -75,7 +75,7 @@ def extractComments(htmlText: str) -> list[Comment]:
             
     return result
 
-
+ 
 def save_comments_to_json(comments, filename):
     data = {
         'comments': [{
