@@ -80,9 +80,9 @@ def save_comments_to_json(comments, filename):
     data = {
         'comments': [{
             'author': comment['author'],
-            'comment': comment['message'],
+            'avatar': comment['avatar'],
             'timestamp': comment['timestamp'],
-            'avatar': comment['avatar']
+            'comment': comment['message']
         } for comment in comments]
     }
     with open(filename, 'w', encoding='utf-8') as file:
