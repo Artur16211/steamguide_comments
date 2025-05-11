@@ -2,51 +2,64 @@ name: Extract and Deploy Multiple Comments
 
 on:
   schedule:
-    - cron: "18 22 * * *"  # Programa automático diario
-  workflow_dispatch:        # Ejecución manual
+    - cron: "18 22 * * *"
+  workflow_dispatch:
 
 jobs:
   extract_and_deploy:
-    name: Extract Comments and Deploy to GitHub Pages
+    name: Extract Comments and Deploy
     runs-on: ubuntu-24.04
 
     steps:
-      # 1. Checkout del repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Configurar Python
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.11
 
-      # 3. Instalar dependencias
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 4. Ejecutar script y generar múltiples JSON
-      - name: Run script to extract comments
-        run: python extract_comments.py
+      - name: Run script with debug output
+        run: |
+          python extract_comments.py
+          echo "Generated files:"
+          ls -la comments_*.json || echo "No JSON files found"
 
-      # 5. Mover archivos JSON al directorio docs
-      - name: Move JSON files to docs folder
+      - name: Verify and move JSON files
         run: |
           mkdir -p docs
-          mv comments_*.json docs/
+          # Listar archivos antes de mover
+          echo "Files before moving:"
+          ls -la
+          
+          # Mover cada archivo individualmente con verificación
+          for i in {1..4}; do
+            if [ -f "comments_$i.json" ]; then
+              echo "Moving comments_$i.json"
+              mv "comments_$i.json" docs/
+            else
+              echo "comments_$i.json not found!"
+            fi
+          done
+          
+          # Verificación final
+          echo "Files in docs after moving:"
+          ls -la docs/
 
-      # 6. Configurar credenciales para push manual
       - name: Configure Git
         run: |
           git config --global user.email "herrera.alvaradoartu@gmail.com"
           git config --global user.name "Artur16211"
 
-      # 7. Hacer commit y push manualmente con tu token
       - name: Commit and Push Changes
         env:
           TOKEN: ${{ secrets.COMMENTS_STEAM }}
         run: |
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
-          git add docs/comments_*.json
-          git commit -m "Update multiple comments files [skip ci]" || echo "No changes to commit"
+          git add docs/
+          git status
+          git commit -m "Update comments files [skip ci]" || echo "No changes to commit"
           git push origin main
