@@ -1,12 +1,10 @@
 ﻿import re
-import sys
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 import bs4
 import requests
 import json
-import dateparser
 
 # Configuración
 urls = [
