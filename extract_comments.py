@@ -64,7 +64,7 @@ def extractComments(htmlText: str) -> list[Comment]:
             # Crear diccionario con todos los datos incluyendo el avatar
             comment_data = {
                 'author': autor,
-                'message': message,
+                'comment': message,
                 'timestamp': date.isoformat(),
                 'avatar': avatar_url
             }
