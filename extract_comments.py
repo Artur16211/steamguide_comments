@@ -5,6 +5,7 @@ from typing import Optional
 import bs4
 import requests
 import json
+import dateparser
 
 # Configuración
 urls = [
@@ -35,21 +36,32 @@ def extractComments(htmlText: str) -> list[Comment]:
     result = []
     bs = bs4.BeautifulSoup(htmlText, "html.parser")
     for singleComment in bs.find_all(class_='commentthread_comment responsive_body_text'):
-        autor: str = singleComment.find('bdi').text.strip()
-        message: str = singleComment.find(
-            class_='commentthread_comment_text').text.strip()
-        timestamp: str = singleComment.find(
-            class_='commentthread_comment_timestamp')['title'].strip()
-
         try:
-            date = datetime.strptime(timestamp, '%d %B, %Y @ %I:%M:%S %p %Z')
-        except ValueError:
-            while not timestamp.endswith(' '):
-                timestamp = timestamp[:-1]
-            timestamp = timestamp[:-1]
-            date = datetime.strptime(timestamp, '%d %B, %Y @ %I:%M:%S %p')
+            autor: str = singleComment.find('bdi').text.strip()
+            message: str = singleComment.find(
+                class_='commentthread_comment_text').text.strip()
+            timestamp: str = singleComment.find(
+                class_='commentthread_comment_timestamp')['title'].strip()
 
-        result.append(Comment(autor, message, date))
+            # Limpieza de la cadena de fecha
+            timestamp = timestamp.replace(',', '')  # Elimina comas
+            timestamp = re.sub(r'\s+', ' ', timestamp)  # Normaliza espacios
+            
+            # Intenta parsear con varios formatos
+            try:
+                date = datetime.strptime(timestamp, '%d %B %Y @ %I:%M:%S %p')
+            except ValueError:
+                # Intenta con dateparser como fallback
+                date = dateparser.parse(timestamp)
+                if not date:
+                    date = datetime.now()  # Fallback final
+                    print(f"Warning: Could not parse date: {timestamp}")
+
+            result.append(Comment(autor, message, date))
+        except Exception as e:
+            print(f"Error processing comment: {str(e)}")
+            continue
+            
     return result
 
 def save_comments_to_json(comments, filename):
