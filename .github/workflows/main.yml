@@ -1,4 +1,4 @@
-name: Extract and Deploy Comments
+name: Extract and Deploy Multiple Comments
 
 on:
   schedule:
@@ -25,15 +25,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 4. Ejecutar script y generar comments.json
+      # 4. Ejecutar script y generar múltiples JSON
       - name: Run script to extract comments
         run: python extract_comments.py
 
-      # 5. Mover comments.json al directorio docs
-      - name: Move comments.json to docs folder
+      # 5. Mover archivos JSON al directorio docs
+      - name: Move JSON files to docs folder
         run: |
           mkdir -p docs
-          mv comments.json docs/
+          mv comments_*.json docs/
 
       # 6. Configurar credenciales para push manual
       - name: Configure Git
@@ -47,6 +47,6 @@ jobs:
           TOKEN: ${{ secrets.COMMENTS_STEAM }}
         run: |
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
-          git add docs/comments.json
-          git commit -m "Update comments.json [skip ci]" || echo "No changes to commit"
+          git add docs/comments_*.json
+          git commit -m "Update multiple comments files [skip ci]" || echo "No changes to commit"
           git push origin main
