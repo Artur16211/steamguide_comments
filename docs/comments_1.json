@@ -1,3 +1,22 @@
 {
-  "comments": []
+  "comments": [
+    {
+      "author": "silly cat",
+      "avatar": "https://avatars.fastly.steamstatic.com/12029d037d17a0fe8b343ae79b64023e1a488cad_medium.jpg",
+      "timestamp": "2025-06-26T13:25:00-07:00",
+      "comment": "los redireccionadores de la guia, los links de mediafire funcionan perfectamente."
+    },
+    {
+      "author": "atuburapaler",
+      "avatar": "https://avatars.fastly.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
+      "timestamp": "2025-06-26T11:38:07-07:00",
+      "comment": "Hola, ¿qué sitio web no funciona?"
+    },
+    {
+      "author": "silly cat",
+      "avatar": "https://avatars.fastly.steamstatic.com/12029d037d17a0fe8b343ae79b64023e1a488cad_medium.jpg",
+      "timestamp": "2025-06-25T20:43:40-07:00",
+      "comment": "no me deja acceder a los links wtf"
+    }
+  ]
 }
