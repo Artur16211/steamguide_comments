@@ -108,7 +108,7 @@ def get_comments_from_url(url, index):
     return comments
 
 def main():
-    for i, url in enumerate(urls[:4]):  # Solo procesamos 4 URLs
+    for i, url in enumerate(urls[:5]):  # Solo procesamos 4 URLs
         try:
             comments = get_comments_from_url(url, i)
             filename = f'comments_{i+1}.json'
