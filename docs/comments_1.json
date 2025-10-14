@@ -2,61 +2,61 @@
   "comments": [
     {
       "author": "atuburapaler",
-      "avatar": "https://avatars.akamai.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
       "timestamp": "2025-10-13T14:39:24-07:00",
       "comment": "Hasta donde yo sé, es igual en consolas."
     },
     {
       "author": "Marcelino pan y vino",
-      "avatar": "https://avatars.akamai.steamstatic.com/d3eb39d70f297a4191bea908797cd7972a77ad86_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/d3eb39d70f297a4191bea908797cd7972a77ad86_medium.jpg",
       "timestamp": "2025-10-01T19:42:51-07:00",
       "comment": "Cuando tomo un perk, los personajes no dicen nada, esto sucede en kino der toten :c"
     },
     {
       "author": "atuburapaler",
-      "avatar": "https://avatars.akamai.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
       "timestamp": "2025-09-28T19:31:58-07:00",
       "comment": "Si usás el \"reemplazo de archivos\" sí."
     },
     {
       "author": "Maniito92",
-      "avatar": "https://avatars.akamai.steamstatic.com/367e20dc344473a487fb2c5d6dc2f54b0b0c4f8f_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/367e20dc344473a487fb2c5d6dc2f54b0b0c4f8f_medium.jpg",
       "timestamp": "2025-09-27T23:51:29-07:00",
       "comment": "Los logros de Steam siguen siendo obtenibles si lo modifico?"
     },
     {
       "author": "Artur",
-      "avatar": "https://avatars.akamai.steamstatic.com/b1d2f8ae01cb0002c864c25e2b23ca30e6e8c5a5_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/b1d2f8ae01cb0002c864c25e2b23ca30e6e8c5a5_medium.jpg",
       "timestamp": "2025-09-27T13:03:37-07:00",
       "comment": "Ya se probó mantener la duración de los audios originales y aun así los problemas persisten, los audios de 0KB ya existen en los archivos originales del castellano por lo que no es un error del programa."
     },
     {
       "author": "Strong Wolf",
-      "avatar": "https://avatars.akamai.steamstatic.com/b01dbd097b9c9c5f94379fe5228d57c4aa26b659_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/b01dbd097b9c9c5f94379fe5228d57c4aa26b659_medium.jpg",
       "timestamp": "2025-09-27T10:05:46-07:00",
       "comment": "Al abrir los archivos sabs con Black Ops Sound Studio hay algunas pistas de audio que pesan 0 KB. Eso significa que el programa no fue capaz de leer esas pistas de audio al hacer el empaquetado de los archivos sabs, y por lo tanto esas pistas de audio no tienen sonido. Esa es la razon por la que a veces el audio se va en mitad de la partida, los archivos sabs estan corruptos.Otra cosa que es un poco molesta, es que las voces de power up de Richtofen duran muchisimo por los ecos (por ejemplo cuando dice doble puntuacion se escucha \"doble puntuacion cion-cion-cion-cion\") esto hace que al tomar un segundo power up, este no se escuche ya que la voz del power up anterior se sigue reproduciendo con los ecos al final de la pista de audio. Si cortaran los ecos para reducir la duracion de la pista de audio, este pseudo error se corregiría. Podria hacerlo yo, pero el Black Ops Sound Studio no permite editar los archivos de Black Ops 3."
     },
     {
       "author": "TheBlackMauro",
-      "avatar": "https://avatars.akamai.steamstatic.com/8dd6d817f406a8b3b036fb216cbf54a89fd9708c_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/8dd6d817f406a8b3b036fb216cbf54a89fd9708c_medium.jpg",
       "timestamp": "2025-09-13T12:48:10-07:00",
       "comment": "encontre un problema en el mapa ascension, por algun motivo, las voces del mapa se oyen entre cortadas y bugeadas, no entiendo por que sucede esto."
     },
     {
       "author": "Artur",
-      "avatar": "https://avatars.akamai.steamstatic.com/b1d2f8ae01cb0002c864c25e2b23ca30e6e8c5a5_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/b1d2f8ae01cb0002c864c25e2b23ca30e6e8c5a5_medium.jpg",
       "timestamp": "2025-08-23T21:13:42-07:00",
       "comment": "Intenta abrir el avance desde un navegador externo."
     },
     {
       "author": "atuburapaler",
-      "avatar": "https://avatars.akamai.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/4cfc4d1ef2cb2c4dfc32def99ea209a55df7c057_medium.jpg",
       "timestamp": "2025-08-23T20:23:56-07:00",
       "comment": "Nunca nadie reportó algo así ¿Estás seguro de que es la versión de Steam?Y no hay nada caído, todo funciona y está en línea."
     },
     {
       "author": "BearOvertaker",
-      "avatar": "https://avatars.akamai.steamstatic.com/397fdc373af287c1f263c3f51aaeb9b97db0e529_medium.jpg",
+      "avatar": "https://avatars.fastly.steamstatic.com/397fdc373af287c1f263c3f51aaeb9b97db0e529_medium.jpg",
       "timestamp": "2025-08-23T17:30:43-07:00",
       "comment": "Disculpa tengo un problema con los dialogos del modo zombies se entrelazan ,como si uno habla al momento ya adelantado ,que no coincide con la escena -y actualmente los links estan caidos ,alguna solucion para el mod latino ?"
     }
